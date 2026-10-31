@@ -1,0 +1,2 @@
+zameny-pages-stage2
+Static UI and Worker public data published by Actions. No browser Worker/Deno API, subscriptions or push.

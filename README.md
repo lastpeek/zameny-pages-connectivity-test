@@ -1,2 +1,35 @@
-# zameny-pages-connectivity-test
-Static connectivity test only: HTML, local CSS and JS. No production code, data or subscriptions.
+# zameny — test GitHub Pages
+
+Тестовая статическая копия существующего интерфейса для 311а и 1621а.
+Адрес: https://lastpeek.github.io/zameny-pages-connectivity-test/
+
+**Уведомления на Pages пока не подключены.** Разрешение на них не запрашивается, фиктивные подписки не создаются. Рабочая Deno-копия, DNS, Worker/D1, парсер, очередь, отправитель и реальные подписки не меняются.
+
+## Публикация
+- `.github/workflows/publish.yml`: ручной workflow_dispatch и расписание `7,22,37,52 * * * *` (UTC), без автодеплоя рабочего репозитория lastpeek/zameny.
+- `scripts/publish.ts`: только GET к публичным /api/schedule и /api/changes существующего zameny-snapshot-api. Не запускает проверку источника, не вызывает Deno и ничего не пишет в Worker.
+- Обе группы, все даты текущего coverage и журналы проверяются до сборки. Повторное чтение снимка проверяет, что данные не изменились во время сбора. Checking/error, отсутствующий снимок, неполный журнал, HTTP-ошибка или несовпадение формата останавливают выпуск.
+- Для каждой группы расписание и журналы помещаются в один файл `stage1-data/<group>/schedule.json`. Имя каталога унаследовано от этапа 1. Браузер читает только Pages, не серверный API.
+- Только после успешных тестов, получения полного набора, статической сборки и загрузки артефакта выполняется deploy. При ошибке прежний опубликованный Pages-выпуск не заменяется. Новый site с частичными данными не публикуется.
+- `frontend/` содержит сохранённый существующий Next.js интерфейс; output: export. Node-сервера на Pages нет.
+
+## Авторизация и бесплатные ресурсы
+Только штатные временные токены GitHub Actions. Checkout: contents:read, persist-credentials:false. Deploy: pages:write и id-token:write. Постоянные PAT, рабочий bridge-токен и VAPID не используются; секреты не создаются.
+Стандартный ubuntu-latest, не платный larger runner. Нет кеша зависимостей; артефакт Pages хранится 1 день. Никакие платные услуги и перерасход не включаются.
+
+## Свежесть и ограничения
+В интерфейсе показаны время последней успешной проверки Worker, её давность и отдельно время подготовки выпуска. Локальный таймер обновляет давность и предупреждение об устаревании без сети. «Обновить экран» перечитывает файлы Pages, не запускает парсер. Автоматическое чтение JSON — раз в минуту только на видимом экране; это запрос к статическому Pages, не расход Deno.
+Расписание Actions добавляет ожидание до следующего запуска и время очереди/сборки/доставки. Это не гарантия обновления в течение 15 минут. GitHub может задерживать/пропускать scheduled runs; после 60 дней без активности публичного репозитория расписание отключается и требует включения. Источник: https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows
+Нет офлайн-кеша и обещания доставки push на Pages. PWA manifest и shell-only service worker сохранены; Deno-приложение удалять или переустанавливать не нужно.
+
+## Локальная проверка
+Node 24:
+```
+cd frontend && npm ci --ignore-scripts && cd ..
+./frontend/node_modules/.bin/tsx --test scripts/publish.test.ts
+./frontend/node_modules/.bin/tsx scripts/publish.ts
+cd frontend
+PAGES_BASE_PATH=/zameny-pages-connectivity-test NEXT_TELEMETRY_DISABLED=1 npm run build
+```
+Готовые файлы: frontend/out/. Тесты используют фиктивные публичные данные и не отправляют push.
+Исходный этап 1 сохранён отдельным архивом; существующие старые файлы сетевых тестов в корне репозитория не удаляются, но Actions публикует frontend/out, не корень.

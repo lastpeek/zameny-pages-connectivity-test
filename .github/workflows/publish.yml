@@ -1,0 +1,53 @@
+name: Publish public schedule to Pages
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '7,22,37,52 * * * *'
+permissions:
+  contents: read
+concurrency:
+  group: pages-public-schedule
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install static frontend tools
+        run: npm ci --ignore-scripts
+        working-directory: frontend
+      - name: Test failure handling and validation
+        run: ./frontend/node_modules/.bin/tsx --test scripts/publish.test.ts
+      - name: Fetch complete public dataset from existing Worker
+        run: ./frontend/node_modules/.bin/tsx scripts/publish.ts
+      - name: Build static frontend
+        run: npm run build
+        working-directory: frontend
+        env:
+          PAGES_BASE_PATH: /zameny-pages-connectivity-test
+          NEXT_TELEMETRY_DISABLED: '1'
+      - name: Upload validated complete release
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: frontend/out
+          retention-days: 1
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Publish release
+        id: deployment
+        uses: actions/deploy-pages@v4

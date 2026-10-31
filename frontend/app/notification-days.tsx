@@ -1,0 +1,4 @@
+'use client';
+import {useEffect,useState} from 'react';
+import {staticPath} from '../src/ui/static-path';
+export default function NotificationDays(){const [dates,setDates]=useState<string[]>([]);useEffect(()=>{const p=new URLSearchParams(location.search);const a=(p.get('dates')||'').split(',');if(a.length>1&&a.length<=14&&a.every(d=>/^\d{4}-\d{2}-\d{2}$/.test(d)&&Number.isFinite(Date.parse(d))&&new Date(d).toISOString().slice(0,10)===d))setDates([...new Set(a)].sort())},[]);if(!dates.length)return null;return <nav aria-label="Даты сводного уведомления"><p>Даты из уведомления — откройте каждую для просмотра журнала:</p>{dates.map(d=><a key={d} href={staticPath('/')+'?date='+d+'&dates='+dates.join(',')+'&group='+encodeURIComponent(new URLSearchParams(location.search).get('group')||'311а')} className="button">{new Intl.DateTimeFormat('ru-RU',{timeZone:'Asia/Vladivostok',weekday:'long',day:'numeric',month:'long'}).format(new Date(d+'T00:00:00+10:00'))}</a>)}</nav>}
