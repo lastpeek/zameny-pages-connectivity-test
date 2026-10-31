@@ -1,7 +1,8 @@
 # zameny — test GitHub Pages
 
 Тестовая статическая копия существующего интерфейса для 311а и 1621а.
-Адрес: https://lastpeek.github.io/zameny-pages-connectivity-test/
+Адрес после переключения DNS: https://nggpk-zameny.ru/
+Custom domain в настройках GitHub Pages: nggpk-zameny.ru. DNS меняет владелец в Рег.ру; выпуск бесплатного HTTPS ожидает правильных DNS.
 
 **Уведомления на Pages пока не подключены.** Разрешение на них не запрашивается, фиктивные подписки не создаются. Рабочая Deno-копия, DNS, Worker/D1, парсер, очередь, отправитель и реальные подписки не меняются.
 
@@ -29,7 +30,10 @@ cd frontend && npm ci --ignore-scripts && cd ..
 ./frontend/node_modules/.bin/tsx --test scripts/publish.test.ts
 ./frontend/node_modules/.bin/tsx scripts/publish.ts
 cd frontend
-PAGES_BASE_PATH=/zameny-pages-connectivity-test NEXT_TELEMETRY_DISABLED=1 npm run build
+PAGES_BASE_PATH='' NEXT_TELEMETRY_DISABLED=1 npm run build
 ```
 Готовые файлы: frontend/out/. Тесты используют фиктивные публичные данные и не отправляют push.
 Исходный этап 1 сохранён отдельным архивом; существующие старые файлы сетевых тестов в корне репозитория не удаляются, но Actions публикует frontend/out, не корень.
+
+## Собственный домен
+Сборка использует пустой basePath: ресурсы /_next, данные /stage1-data, manifest и service worker находятся от корня домена. Manifest start_url/scope — /. Автопубликация данных и её временная авторизация не менялись. При custom Actions workflow отдельный CNAME-файл не требуется; домен задан в Settings → Pages. До переключения DNS HTTPS на новом домене не подтверждён, прежний github.io адрес может перенаправлять на собственный домен. DNS, Deno и серверная цепочка этой правкой не изменяются.

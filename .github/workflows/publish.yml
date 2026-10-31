@@ -30,7 +30,7 @@ jobs:
         run: npm run build
         working-directory: frontend
         env:
-          PAGES_BASE_PATH: /zameny-pages-connectivity-test
+          PAGES_BASE_PATH: ''
           NEXT_TELEMETRY_DISABLED: '1'
       - name: Upload validated complete release
         uses: actions/upload-pages-artifact@v3
