@@ -6,7 +6,7 @@ export default function manifest(): MetadataRoute.Manifest {
     id: staticPath("/"),
     name: "zameny — тест Pages",
     short_name: "zameny Pages",
-    description: "Тест Pages: расписание 311а и 1621а; уведомления пока не подключены",
+    description: "Тест Pages: расписание 311а и 1621а; настройки уведомлений",
     lang: "ru",
     start_url: staticPath("/"),
     scope: staticPath("/"),
