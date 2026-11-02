@@ -1,15 +1,18 @@
 'use client';
 import {useEffect,useRef,useState} from 'react';
 import InstallGuide from './install-guide';
+import {makeVerificationCode} from '../src/ui/push-proof';
 import {type Config,request,registration,syncBinding,pendingDeletion,pauseBinding,markDisabled,clearPendingDeletion} from '../src/ui/push-client';
 const bytes=(s:string)=>Uint8Array.from(atob(s.replace(/-/g,'+').replace(/_/g,'/')),x=>x.charCodeAt(0));
 export default function PushSettings({open,group}:{open:boolean;group:string}){
  const [c,setC]=useState<Config|null>(null),[changes,setChanges]=useState(false),[publications,setPublications]=useState(false),[consent,setConsent]=useState(false),[busy,setBusy]=useState(false),[message,setMessage]=useState(''),[pending,setPending]=useState(false),[warning,setWarning]=useState('');
+ const [verificationCode,setVerificationCode]=useState('');
  const lock=useRef(false);
  async function run(f:()=>Promise<void>){if(lock.current)return;lock.current=true;setBusy(true);try{await f()}finally{lock.current=false;setBusy(false)}}
  async function load(){const p=await pendingDeletion();setPending(p);const value:Config=await request('GET');setC(value);if(value.device?.active){setChanges(value.device.changes);setPublications(value.device.publications)}if(!p){try{await syncBinding(value.device);setWarning('')}catch{setWarning('Не удалось обновить обработчик уведомлений. Проверьте соединение и повторите.')}}return value}
- useEffect(()=>{if(!open)return;void run(async()=>{setMessage('Проверяем состояние подписки…');try{await load();setMessage('Состояние сервера проверено. Доставка на телефон этой проверкой не подтверждается.')}catch{setC(null);setMessage('Не удалось проверить состояние подписки. Попробуйте ещё раз.')}})},[open]);
+ useEffect(()=>{setVerificationCode('');if(!open)return;void run(async()=>{setMessage('Проверяем состояние подписки…');try{await load();setMessage('Состояние сервера проверено. Доставка на телефон этой проверкой не подтверждается.')}catch{setC(null);setMessage('Не удалось проверить состояние подписки. Попробуйте ещё раз.')}})},[open]);
  async function check(){await run(async()=>{setMessage('Проверяем состояние подписки…');try{if(await pendingDeletion()){await request('POST',{action:'unsubscribe'});await clearPendingDeletion();setPending(false)}await load();setMessage('Состояние сервера проверено. Доставка на телефон этой проверкой не подтверждается.')}catch{setC(null);setMessage('Не удалось проверить состояние или завершить удаление. Попробуйте ещё раз.')}})}
+ async function verifyDevice(){await run(async()=>{setVerificationCode('');try{if(await pendingDeletion())throw Error();const latest:Config=await request('GET'),d=latest.device;if(!d?.active||d.group!=='311а'||!/^[a-f0-9]{64}$/.test(d.bindingId))throw Error();setC(latest);setVerificationCode(await makeVerificationCode(d.bindingId));setMessage('Код создан для активной подписки 311а. Он не управляет подпиской и не содержит её адрес или ключи.');}catch{setMessage('Не удалось создать код для активной подписки 311а. Проверьте состояние подписки.')}})}
  async function enable(){if(!c||!consent||!(changes||publications)||pending)return;await run(async()=>{try{
   if(c.device?.active&&c.device.group!==group)throw Error('Сначала подтвердите переключение группы уведомлений ниже.');
   const installed=matchMedia('(display-mode: standalone)').matches||(navigator as Navigator&{standalone?:boolean}).standalone,ios=/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
@@ -36,6 +39,8 @@ export default function PushSettings({open,group}:{open:boolean;group:string}){
  {c?.device?.active&&c.device.group!==group&&<button className="button full-width" disabled={busy||pending} onClick={switchGroup}>Переключить уведомления на группу {group}</button>}
  <button className="button full-width" disabled={busy} onClick={disable}>Отключить уведомления и удалить подписку</button>
  <button className="button full-width" disabled={busy} aria-busy={busy} onClick={check}>Проверить состояние подписки</button>
+ <button className="button full-width" disabled={busy||pending||!c?.device?.active} onClick={verifyDevice}>Получить код сверки устройства</button>
+ {verificationCode&&<p role="status">Код для одной сверки (можно передать в чат): <strong>{verificationCode}</strong></p>}
  <p>Адрес и ключи push-подписки хранятся на сервере в закрытой базе данных. При отписке они удаляются с сервера.</p>
  {warning&&<p role="alert">{warning}</p>}<p role="status" aria-live="polite">{message}</p></section><InstallGuide/></div>;
 }
