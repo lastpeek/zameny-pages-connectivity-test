@@ -557,10 +557,11 @@ export default function Schedule() {
                 </p>
               </div>
             </div>
-            <p className="field-hint" data-testid="data-age">С последней успешной проверки: {dataAge(state?.lastSuccessfulCheck||null,clock||Date.now())}</p>
-            {state?.pages&&<p className="field-hint">Снимок выпуска подготовлен: {readableInstant(state.pages.generatedAt,timeZone)}</p>}
-            <p className="field-hint">Последняя попытка: {state?.lastAttempt ? readableInstant(state.lastAttempt, timeZone) : "пока нет"}</p>
-            <p className="field-hint">Изменения замечены: {state?.dataChangedAt ? readableInstant(state.dataChangedAt, timeZone) : "пока нет"}</p>
+            {(offline || clientError || (state && (state.isStale || state.status === "stale" || Boolean(state.lastSuccessfulCheck && (clock||Date.now())-Date.parse(state.lastSuccessfulCheck)>1800000)))) && (
+              <p className="storage-warning" role="status" data-testid="freshness-warning">
+                {offline ? "Нет подключения. Показанные данные могут быть устаревшими." : clientError ? "Не удалось обновить данные. Показанное расписание может быть устаревшим." : `Данные могут быть устаревшими. С последней успешной проверки: ${dataAge(state?.lastSuccessfulCheck||null,clock||Date.now())}.`}
+              </p>
+            )}
             <button
               type="button"
               className="refresh-button"
@@ -570,15 +571,6 @@ export default function Schedule() {
               <Icon name="refresh" />
               {refreshing ? "Обновляем экран…" : "Обновить экран"}
             </button>
-            <p className="refresh-hint">
-              Без запуска проверки источника.
-            </p>
-            <aside className="source-check-note" aria-labelledby="source-check-note-title">
-              <div className="source-check-note-heading">
-                <Icon name="notice" />
-                <p id="source-check-note-title">Готовые данные из Worker публикуются на Pages примерно раз в 15 минут</p>
-              </div>
-            </aside>
           </section>
           <section
             className="feed"
