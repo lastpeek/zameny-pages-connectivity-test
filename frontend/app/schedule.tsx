@@ -307,12 +307,22 @@ export default function Schedule() {
       if (alive) setRefreshing(true);
       const timeout = setTimeout(() => controller.abort(), 15000);
       try {
-        const response = await fetch(staticPath("/stage1-data/"+encodeURIComponent(selectedGroup!)+"/schedule.json"), {
-          cache: "no-store",
-          signal: controller.signal,
-        });
-        if (!response.ok) throw new Error("API unavailable");
-        const data = readStaticState(await response.json(),Date.now(),selectedGroup!);
+        const early = window.__zamenyEarlySchedule;
+        let raw: unknown = null;
+        if (early?.group === selectedGroup) {
+          delete window.__zamenyEarlySchedule;
+          raw = await early.promise;
+        }
+        if (controller.signal.aborted) throw new Error("Request cancelled");
+        if (raw === null) {
+          const response = await fetch(staticPath("/stage1-data/"+encodeURIComponent(selectedGroup!)+"/schedule.json"), {
+            cache: "no-store",
+            signal: controller.signal,
+          });
+          if (!response.ok) throw new Error("API unavailable");
+          raw = await response.json();
+        }
+        const data = readStaticState(raw,Date.now(),selectedGroup!);
         if (
           data.group!==selectedGroup ||
           !Array.isArray(data.entries) ||

@@ -4,6 +4,7 @@ import "./globals.css";
 import StageOneNotice from "./stage-one-notice";
 import {staticPath} from "../src/ui/static-path";
 import { appearanceBootstrap } from "../src/ui/appearance";
+import { earlyScheduleBootstrap } from "../src/ui/early-schedule";
 export const metadata: Metadata = {
   title: "zameny — тест Pages",
   description: `zameny: опубликованные данные колледжа для группы ${pilot.group}, ссылка на первоисточник и время проверки.`,
@@ -28,7 +29,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ru" suppressHydrationWarning>
-      <head><script dangerouslySetInnerHTML={{ __html: appearanceBootstrap }} /></head>
+      <head><script id="zameny-early-bootstrap" dangerouslySetInnerHTML={{ __html: appearanceBootstrap + ";" + earlyScheduleBootstrap }} /></head>
       <body>
         <StageOneNotice />
         {children}
