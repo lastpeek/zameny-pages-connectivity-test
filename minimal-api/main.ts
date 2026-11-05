@@ -1,5 +1,7 @@
 // Native Deno API. No Next.js, sender, cron, database, or private VAPID key.
 export const PAGES_ORIGIN='https://lastpeek.github.io';
+export const CUSTOM_ORIGIN='https://nggpk-zameny.ru';
+const allowedOrigins=new Set([PAGES_ORIGIN,CUSTOM_ORIGIN]);
 export const WORKER='https://zameny-snapshot-api.steparosliy.workers.dev';
 export const PUBLIC_KEY='BLGlJ2y1Aiy1-CUYt12v-1tE_-FQDMAosKKzhSj4jlsBHQ7EDFhKOgkzliPgFcI8xLI5rgd5Ztk2xKeav3efOX4';
 const sender='https://zameny-311a.vercel.app/api/notifications';
@@ -10,11 +12,11 @@ type Deps={token?:string;transport?:typeof fetch};
 export async function handle(req:Request,deps:Deps={}):Promise<Response>{
  const origin=req.headers.get('Origin');
  const headers:Record<string,string>={'Cache-Control':'private, no-store','Content-Type':'application/json; charset=utf-8','Vary':'Origin','X-Content-Type-Options':'nosniff','Referrer-Policy':'no-referrer','Content-Security-Policy':"default-src 'none'; frame-ancestors 'none'"};
- if(origin===PAGES_ORIGIN)headers['Access-Control-Allow-Origin']=PAGES_ORIGIN;
+ if(origin&&allowedOrigins.has(origin))headers['Access-Control-Allow-Origin']=origin;
  const reply=(v:unknown,s=200)=>new Response(JSON.stringify(v),{status:s,headers});
  const url=new URL(req.url);
  if(url.pathname!=='/api/notifications'||url.search)return reply({ok:false,code:'NOT_FOUND'},404);
- if(origin!==PAGES_ORIGIN)return reply({ok:false,code:'ORIGIN_DENIED'},403);
+ if(!origin||!allowedOrigins.has(origin))return reply({ok:false,code:'ORIGIN_DENIED'},403);
  if(req.method==='OPTIONS'){
   const method=req.headers.get('Access-Control-Request-Method'),names=(req.headers.get('Access-Control-Request-Headers')||'').toLowerCase().split(',').map(x=>x.trim()).filter(Boolean);
   if(!['GET','POST'].includes(method||'')||names.some(x=>!['authorization','content-type'].includes(x)))return reply({ok:false},403);

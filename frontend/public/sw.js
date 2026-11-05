@@ -1,5 +1,5 @@
 /* Pages push handler: no API request when a push arrives. */
-const BASE='/zameny-pages-connectivity-test/';
+const BASE=new URL(self.registration.scope).pathname;
 const API='https://scarlet-wolverine-8967.lastpeek.deno.net/api/notifications';
 importScripts(BASE+'push-contract.js?v=3');
 const contract=self.ZamenyPushContract;
