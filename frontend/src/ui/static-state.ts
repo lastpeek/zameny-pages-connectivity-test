@@ -31,3 +31,9 @@ export function dataAge(lastSuccess:string|null,now:number):string{
  if(minutes<60)return `${minutes} мин.`;
  const hours=Math.floor(minutes/60);return hours<24?`${hours} ч. ${minutes%60} мин.`:`${Math.floor(hours/24)} дн. ${hours%24} ч.`;
 }
+// A changed snapshot can also reflect coverage churn or an initial baseline.
+// Only report its timestamp as an observed change when the group's journal confirms it.
+export function confirmedChangeTime(state:ApiState|null):string|null{
+ const at=state?.dataChangedAt;if(!at||!state?.pages)return null;
+ return Object.values(state.pages.journals).some(j=>j.group===state.group&&j.events.some(e=>e.checkedAt===at))?at:null;
+}

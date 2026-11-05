@@ -7,7 +7,7 @@ import { BELL_SCHEDULES } from "../src/ui/bells";
 import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import type { Entry } from "../src/ui/api-state";
 import {staticPath} from "../src/ui/static-path";
-import {readStaticState, dataAge} from "../src/ui/static-state";
+import {readStaticState, dataAge, confirmedChangeTime} from "../src/ui/static-state";
 import { pilot, collegeDate, supportedGroups } from "../src/config";
 import {
   GROUP_STORAGE_KEY,
@@ -557,6 +557,9 @@ export default function Schedule() {
                 </p>
               </div>
             </div>
+            <p className="field-hint" data-testid="last-observed-change">
+              Изменения замечены: {confirmedChangeTime(state) ? readableInstant(confirmedChangeTime(state), timeZone) : "нет подтверждённых данных"}
+            </p>
             {(offline || clientError || (state && (state.isStale || state.status === "stale" || Boolean(state.lastSuccessfulCheck && (clock||Date.now())-Date.parse(state.lastSuccessfulCheck)>1800000)))) && (
               <p className="storage-warning" role="status" data-testid="freshness-warning">
                 {offline ? "Нет подключения. Показанные данные могут быть устаревшими." : clientError ? "Не удалось обновить данные. Показанное расписание может быть устаревшим." : `Данные могут быть устаревшими. С последней успешной проверки: ${dataAge(state?.lastSuccessfulCheck||null,clock||Date.now())}.`}
