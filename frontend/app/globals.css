@@ -1181,3 +1181,9 @@ input,select,option { color:var(--ink); background:var(--surface); }
 .stage-one-notice{box-sizing:border-box;max-width:960px;margin:12px auto;padding:12px 16px;border:1px solid currentColor;border-radius:12px;background:var(--surface-soft);color:var(--ink);font-size:14px;line-height:1.45}
 .stage-one-notice p{margin:6px 0 0}
 @media(max-width:600px){.stage-one-notice{margin:8px}}
+
+.pair-heading{display:flex;flex-direction:column;gap:2px;min-width:0}
+.pair-time{font-size:14px;line-height:1.4;color:var(--muted);font-weight:500;font-variant-numeric:tabular-nums;white-space:nowrap}
+.pair-badges{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.pair-countdown{font-size:13px;line-height:1.3;font-weight:650;padding:4px 9px;border:1px solid var(--accent);border-radius:999px;background:var(--surface-soft);color:var(--ink);white-space:nowrap}
+.pair-countdown[data-phase=during]{background:var(--surface-active)}

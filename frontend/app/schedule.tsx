@@ -4,6 +4,7 @@ import NotificationDays from "./notification-days";
 import PushSettings from "./push-settings";
 import ChangeJournal from "./change-journal";
 import { BELL_SCHEDULES } from "../src/ui/bells";
+import { pairCountdown, bellRange, type BellRange, type PairStatus } from "../src/ui/pair-timer";
 import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import type { Entry } from "../src/ui/api-state";
 import {staticPath} from "../src/ui/static-path";
@@ -163,10 +164,14 @@ function RecordCard({
   entry,
   groupLabel,
   classification,
+  time,
+  countdown,
 }: {
   entry: Entry;
   groupLabel: string;
   classification: string;
+  time: BellRange | null;
+  countdown: PairStatus | null;
 }) {
   // These are published source records, not a reconstructed final daily timetable.
   const knownChange =
@@ -181,7 +186,9 @@ function RecordCard({
         : "Занятие";
   const pair = entry.pair
     ? entry.pair.from === entry.pair.to
-      ? `Пара ${entry.pair.from}`
+      ? entry.pair.from === 0
+        ? "0 пара"
+        : `Пара ${entry.pair.from}`
       : `Пары ${entry.pair.from}–${entry.pair.to}`
     : "Пара требует проверки";
   return (
@@ -190,14 +197,32 @@ function RecordCard({
       aria-label={`${pair}. ${entry.subject || kind}`}
     >
       <div className="record-top">
-        <span className="pair-label">{pair}</span>
-        {(needsReview || knownChange) && (
-          <span
-            className={`status-label ${needsReview ? "review-label" : "verified-label"}`}
-          >
-            {needsReview ? "Неполные данные" : kind}
-          </span>
-        )}
+        <div className="pair-heading">
+          <span className="pair-label">{pair}</span>
+          {time && (
+            <span className="pair-time" data-testid="pair-time">
+              {time.start}–{time.end}
+            </span>
+          )}
+        </div>
+        <div className="pair-badges">
+          {countdown && (
+            <span
+              className="pair-countdown"
+              data-testid="pair-countdown"
+              data-phase={countdown.phase}
+            >
+              {countdown.text}
+            </span>
+          )}
+          {(needsReview || knownChange) && (
+            <span
+              className={`status-label ${needsReview ? "review-label" : "verified-label"}`}
+            >
+              {needsReview ? "Неполные данные" : kind}
+            </span>
+          )}
+        </div>
       </div>
       <div className="record-meta">
         <time dateTime={entry.lessonDate}>
@@ -726,6 +751,8 @@ export default function Schedule() {
                       entry={e}
                       groupLabel={current.label}
                       classification={state.classification}
+                      time={bellRange(e.lessonDate, e.pair?.from ?? -1)}
+                      countdown={clock ? pairCountdown(clock, e.lessonDate, e.pair?.from ?? -1) : null}
                     />
                   ))}
                 </div>
