@@ -4,8 +4,8 @@ export const dynamic="force-static";
 export default function manifest(): MetadataRoute.Manifest {
   return {
     id: staticPath("/"),
-    name: "zameny — тест Pages",
-    short_name: "zameny Pages",
+    name: "zameny",
+    short_name: "zameny",
     description: "Тест Pages: расписание 311а и 1621а; настройки уведомлений",
     lang: "ru",
     start_url: staticPath("/"),

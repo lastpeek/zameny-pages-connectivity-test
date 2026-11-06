@@ -6,10 +6,10 @@ import {staticPath} from "../src/ui/static-path";
 import { appearanceBootstrap } from "../src/ui/appearance";
 import { earlyScheduleBootstrap } from "../src/ui/early-schedule";
 export const metadata: Metadata = {
-  title: "zameny — тест Pages",
+  title: "zameny",
   description: `zameny: опубликованные данные колледжа для группы ${pilot.group}, ссылка на первоисточник и время проверки.`,
   manifest: staticPath("/manifest.webmanifest"),
-  appleWebApp: { capable: true, title: "zameny Pages", statusBarStyle: "black" },
+  appleWebApp: { capable: true, title: "zameny", statusBarStyle: "black" },
   icons: {
     icon: staticPath("/icons/favicon-32.png?v=black-1"),
     apple: staticPath("/icons/apple-touch-icon.png?v=black-1"),
