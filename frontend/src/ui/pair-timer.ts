@@ -18,6 +18,14 @@ function minutesOfDay(hhmm: string): number {
   return hours * 60 + minutes;
 }
 
+/** "45 мин", "1 ч", "1 ч 27 мин" — only the label, the count itself is unchanged. */
+function formatMinutes(minutes: number): string {
+  if (minutes < 60) return `${minutes} мин`;
+  const hours = Math.floor(minutes / 60);
+  const rest = minutes % 60;
+  return rest ? `${hours} ч ${rest} мин` : `${hours} ч`;
+}
+
 /** 0 = Sunday … 6 = Saturday for a published `YYYY-MM-DD` date. */
 export function weekdayForDate(date: string): number {
   return new Date(`${date}T00:00:00Z`).getUTCDay();
@@ -58,12 +66,12 @@ export function pairCountdown(
   const end = minutesOfDay(range.end);
   if (current >= start && current < end) {
     const minutes = Math.ceil(end - current);
-    return { phase: "during", minutes, text: `до конца ${minutes} мин` };
+    return { phase: "during", minutes, text: `до конца ${formatMinutes(minutes)}` };
   }
   const untilStart = start - current;
   if (untilStart > 0 && untilStart <= PRE_START_MINUTES) {
     const minutes = Math.ceil(untilStart);
-    return { phase: "before", minutes, text: `до начала ${minutes} мин` };
+    return { phase: "before", minutes, text: `до начала ${formatMinutes(minutes)}` };
   }
   return null;
 }

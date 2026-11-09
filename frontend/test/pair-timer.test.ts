@@ -17,7 +17,7 @@ test('Tuesday–Saturday use the regular table and have no pair 0', () => {
  assert.deepEqual(bellRange('2026-11-10',1),{start:'08:45',end:'10:15'});
  assert.equal(bellRange('2026-11-10',0),null);
  assert.deepEqual(pairCountdown(at('2026-11-10','08:25'),'2026-11-10',1),{phase:'before',minutes:20,text:'до начала 20 мин'});
- assert.deepEqual(pairCountdown(at('2026-11-10','09:00'),'2026-11-10',1),{phase:'during',minutes:75,text:'до конца 75 мин'});
+ assert.deepEqual(pairCountdown(at('2026-11-10','09:00'),'2026-11-10',1),{phase:'during',minutes:75,text:'до конца 1 ч 15 мин'});
  assert.deepEqual(bellRange('2026-11-14',3),{start:'12:45',end:'14:15'});
 });
 
@@ -32,6 +32,14 @@ test('20-minute boundary, rounding, end of pair and gaps', () => {
  assert.equal(pairCountdown(at('2026-11-09','12:40'),'2026-11-09',2),null);
  assert.equal(pairCountdown(at('2026-11-09','12:40'),'2026-11-09',3),null);
  assert.equal(pairCountdown(at('2026-11-09','13:05'),'2026-11-09',3)?.minutes,20);
+});
+
+test('durations of 60 minutes or more use hours in both phases', () => {
+ // Monday pair 1 runs 09:25–10:55; the window before it is 20 minutes.
+ assert.deepEqual(pairCountdown(at('2026-11-09','09:56'),'2026-11-09',1),{phase:'during',minutes:59,text:'до конца 59 мин'});
+ assert.deepEqual(pairCountdown(at('2026-11-09','09:55'),'2026-11-09',1),{phase:'during',minutes:60,text:'до конца 1 ч'});
+ assert.deepEqual(pairCountdown(at('2026-11-09','09:28'),'2026-11-09',1),{phase:'during',minutes:87,text:'до конца 1 ч 27 мин'});
+ assert.deepEqual(pairCountdown(at('2026-11-09','09:05'),'2026-11-09',1),{phase:'before',minutes:20,text:'до начала 20 мин'});
 });
 
 test('bell times are shown for any published date, countdown only for today', () => {
