@@ -38,11 +38,13 @@ export default function PushSettings({open,group}:{open:boolean;group:string}){
  <p>Максимум одно сводное уведомление за одну проверку, только на сегодня и будущие даты. Старые события при подключении не отправляются. Уведомления не содержат ФИО. Проверка раз в 15 минут не гарантирует точное время доставки.</p>
  <label><input type="checkbox" checked={consent} onChange={e=>chooseConsent(e.target.checked)}/> Я согласен получать выбранные уведомления на этом устройстве</label>
  <p>Согласие сохраняется на этом устройстве и сбрасывается при отключении уведомлений.</p>
+ <p role="note">Чтобы уведомления работали, сначала добавьте приложение на экран «Домой». Инструкция ниже.</p>
+ <InstallGuide/>
  <button className="button full-width" disabled={busy||pending||!c?.registrationAllowed||!consent||!(changes||publications)||!!(c.device?.active&&c.device.group!==group)} onClick={enable} aria-busy={busy}>Включить уведомления</button>
  {c?.device?.active&&c.device.group!==group&&<button className="button full-width" disabled={busy||pending} onClick={switchGroup}>Переключить уведомления на группу {group}</button>}
  <button className="button full-width" disabled={busy} onClick={disable}>Отключить уведомления</button>
  <button className="button full-width" disabled={busy} aria-busy={busy} onClick={check}>Проверить состояние подписки</button>
  <p role="status" aria-live="polite">{message}</p>
  {warning&&<p role="alert">{warning}</p>}{consentWarning&&<p role="alert">{consentWarning}</p>}
- <p>Адрес и ключи push-подписки хранятся на сервере в закрытой базе данных. При отписке они удаляются с сервера.</p></section><InstallGuide/></div>;
+ <p>Адрес и ключи push-подписки хранятся на сервере в закрытой базе данных. При отписке они удаляются с сервера.</p></section></div>;
 }
