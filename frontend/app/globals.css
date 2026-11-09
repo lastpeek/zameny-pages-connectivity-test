@@ -1132,6 +1132,9 @@ input,select,option { color:var(--ink); background:var(--surface); }
 .notification-settings .button { margin-top:10px; white-space:normal; }
 .notification-settings [role="status"] { font-weight:600; }
 .notification-settings [role="note"] { padding:14px; border:1px solid var(--accent); border-radius:10px; background:var(--surface-soft); margin-bottom:20px; }
+.notification-details { margin-top:20px; padding-top:4px; border-top:1px solid var(--border); }
+.notification-details > summary { min-height:44px; padding:10px 0; cursor:pointer; font-weight:500; }
+.notification-details > p { margin:12px 0; max-width:68ch; }
 
 /* A quiet reference, not an alert: no coloured panel or competing frame. */
 .source-check-note { margin-top:20px; padding:0; color:var(--ink); background:none; border:0; font-size:14px; line-height:1.55; }

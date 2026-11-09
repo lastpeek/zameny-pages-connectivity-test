@@ -27,24 +27,27 @@ export default function PushSettings({open,group}:{open:boolean;group:string}){
  async function switchGroup(){if(!c?.device?.active||c.device.group===group||!confirm(`Переключить уведомления с группы ${c.device.group} на ${group}?`))return;await run(async()=>{setMessage('Переключаем группу уведомлений…');try{await pauseBinding();await request('POST',{action:'switch_group',group,expectedGroup:c.device!.group,expectedVersion:c.device!.bindingVersion});const updated=await load();if(!updated.device?.active||updated.device.group!==group)throw Error();setMessage('Группа уведомлений переключена. Старые события не рассылаются.')}catch{setC(null);setMessage('Переключение не подтверждено. На устройстве показ уведомлений приостановлен; проверьте состояние и повторите при необходимости.')}})}
  async function disable(){await run(async()=>{setMessage('Отключаем уведомления…');let localMarked=false,browserOff=false,serverOff=false;try{await markDisabled();localMarked=true;setPending(true)}catch{}try{const reg=await registration(),sub=await reg.pushManager.getSubscription();browserOff=!sub||await sub.unsubscribe()}catch{}try{await request('POST',{action:'unsubscribe'});serverOff=true;if(localMarked){await clearPendingDeletion();setPending(false)}setC(null)}catch{setC(null)}chooseConsent(false);if(localMarked&&browserOff&&serverOff){dirty.current=false;setDraft(false);try{await load()}catch{}setMessage('Уведомления отключены, подписка удалена с сервера.')}else setMessage(`${browserOff?'Получение в браузере отключено.':'Не удалось подтвердить отключение в браузере.'} ${serverOff?'Подписка удалена с сервера.':'Удаление на сервере не подтверждено; нажмите «Проверить состояние подписки», когда появится связь.'}${!localMarked?' Не удалось сохранить локальное состояние; проверьте настройки браузера.':''}`)})}
  const events=c?.device?.active?[c.device.changes?'изменения уже опубликованных дат':null,c.device.publications?'первое появление записей на новые даты':null].filter(Boolean).join('; '):'';
- return <div className="notification-settings"><section aria-label="Реальные уведомления"><h3>Уведомления о новых записях и изменениях</h3>
- <p>Источник содержит опубликованные записи, полнота расписания дня не гарантируется. Исчезновение записи не означает отмену занятия.</p>
+ return <div className="notification-settings"><section aria-label="Реальные уведомления">
+ <p role="note">Сначала добавьте приложение на экран «Домой», иначе уведомления не придут.</p>
+ <InstallGuide/>
+ <label><input type="checkbox" checked={changes} onChange={e=>{const v=e.target.checked;editEvent(()=>setChanges(v))}}/> Изменения опубликованных дат</label><br/>
+ <label><input type="checkbox" checked={publications} onChange={e=>{const v=e.target.checked;editEvent(()=>setPublications(v))}}/> Новые даты</label>
+ {draft&&<p>Выбор событий изменён и ещё не сохранён.</p>}
+ <label><input type="checkbox" checked={consent} onChange={e=>chooseConsent(e.target.checked)}/> Я согласен получать выбранные уведомления</label>
+ <button className="button full-width" disabled={busy||pending||!c?.registrationAllowed||!consent||!(changes||publications)||!!(c.device?.active&&c.device.group!==group)} onClick={enable} aria-busy={busy}>Включить</button>
+ {c?.device?.active&&c.device.group!==group&&<button className="button full-width" disabled={busy||pending} onClick={switchGroup}>Переключить уведомления на группу {group}</button>}
+ <button className="button full-width" disabled={busy} onClick={disable}>Отключить</button>
+ <button className="button full-width" disabled={busy} aria-busy={busy} onClick={check}>Проверить подписку</button>
+ <details className="notification-details"><summary>Подробнее</summary>
+  <p>Источник содержит опубликованные записи, полнота расписания дня не гарантируется. Исчезновение записи не означает отмену занятия.</p>
+  <p>Максимум одно сводное уведомление за одну проверку, только на сегодня и будущие даты. Старые события при подключении не отправляются. Уведомления не содержат ФИО. Проверка раз в 15 минут не гарантирует точное время доставки.</p>
+  <p>Согласие сохраняется на этом устройстве и сбрасывается при отключении уведомлений.</p>
+  <p>Адрес и ключи push-подписки хранятся на сервере в закрытой базе данных. При отписке они удаляются с сервера.</p>
+ </details>
  <p role="status">{pending?'Удаление подписки на сервере ожидает подтверждения.':!c?'Состояние подписки не проверено.':c.device?.active?`На сервере уведомления включены для группы ${c.device.group}. События: ${events||'не выбраны'}.`:'Активной подписки на сервере нет.'}</p>
  {c&&<p>{!c.sendingStatusKnown?'Состояние автоматической отправки не удалось проверить.':c.realEnabled&&c.sendingEnabled?'Автоматическая отправка включена.':'Автоматическая отправка временно приостановлена.'}</p>}
  {c&&!c.registrationAllowed&&<p>Подключение и изменение настроек временно недоступны. Отписаться можно в любой момент.</p>}
- <p role="note">Чтобы уведомления работали, сначала добавьте приложение на экран «Домой». Инструкция ниже.</p>
- <InstallGuide/>
- <label><input type="checkbox" checked={changes} onChange={e=>{const v=e.target.checked;editEvent(()=>setChanges(v))}}/> Изменения уже опубликованных дат</label><br/>
- <label><input type="checkbox" checked={publications} onChange={e=>{const v=e.target.checked;editEvent(()=>setPublications(v))}}/> Первое появление записей на новые даты</label>
- {draft&&<p>Выбор событий изменён и ещё не сохранён.</p>}
- <p>Максимум одно сводное уведомление за одну проверку, только на сегодня и будущие даты. Старые события при подключении не отправляются. Уведомления не содержат ФИО. Проверка раз в 15 минут не гарантирует точное время доставки.</p>
- <label><input type="checkbox" checked={consent} onChange={e=>chooseConsent(e.target.checked)}/> Я согласен получать выбранные уведомления на этом устройстве</label>
- <p>Согласие сохраняется на этом устройстве и сбрасывается при отключении уведомлений.</p>
- <button className="button full-width" disabled={busy||pending||!c?.registrationAllowed||!consent||!(changes||publications)||!!(c.device?.active&&c.device.group!==group)} onClick={enable} aria-busy={busy}>Включить уведомления</button>
- {c?.device?.active&&c.device.group!==group&&<button className="button full-width" disabled={busy||pending} onClick={switchGroup}>Переключить уведомления на группу {group}</button>}
- <button className="button full-width" disabled={busy} onClick={disable}>Отключить уведомления</button>
- <button className="button full-width" disabled={busy} aria-busy={busy} onClick={check}>Проверить состояние подписки</button>
  <p role="status" aria-live="polite">{message}</p>
  {warning&&<p role="alert">{warning}</p>}{consentWarning&&<p role="alert">{consentWarning}</p>}
- <p>Адрес и ключи push-подписки хранятся на сервере в закрытой базе данных. При отписке они удаляются с сервера.</p></section></div>;
+ </section></div>;
 }
