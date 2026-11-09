@@ -10,7 +10,7 @@ export default function InstallGuide(){
  }
  return <details className="install-guide">
   <summary>Как установить на телефон</summary>
-  <p className="install-order">Тест Pages: можно установить отдельную копию интерфейса. Уведомления включаются только по вашему действию.</p>
+  <p className="install-order">Можно установить приложение на экран телефона. Уведомления включаются только по вашему нажатию.</p>
   <div className="install-tabs" role="tablist" aria-label="Инструкция для телефона">
    {(['iphone','android'] as const).map(p=><button key={p} type="button" role="tab" id={`install-tab-${p}`} aria-controls={`install-panel-${p}`} aria-selected={platform===p} tabIndex={platform===p?0:-1} onKeyDown={moveTab} onClick={()=>setPlatform(p)}>{p==='iphone'?'iPhone':'Android'}</button>)}
   </div>
@@ -32,6 +32,6 @@ export default function InstallGuide(){
    </ol>
    <p>В поддерживаемом браузере Android уведомления можно включить и без установки.</p>
   </div>
-  <p>Установка сама по себе не включает уведомления и не меняет установленную Deno-копию.</p>
+  <p>Установка сама по себе не включает уведомления.</p>
  </details>;
 }
