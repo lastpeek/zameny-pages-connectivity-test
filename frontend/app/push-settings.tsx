@@ -32,14 +32,14 @@ export default function PushSettings({open,group}:{open:boolean;group:string}){
  <p role="status">{pending?'Удаление подписки на сервере ожидает подтверждения.':!c?'Состояние подписки не проверено.':c.device?.active?`На сервере уведомления включены для группы ${c.device.group}. События: ${events||'не выбраны'}.`:'Активной подписки на сервере нет.'}</p>
  {c&&<p>{!c.sendingStatusKnown?'Состояние автоматической отправки не удалось проверить.':c.realEnabled&&c.sendingEnabled?'Автоматическая отправка включена.':'Автоматическая отправка временно приостановлена.'}</p>}
  {c&&!c.registrationAllowed&&<p>Подключение и изменение настроек временно недоступны. Отписаться можно в любой момент.</p>}
+ <p role="note">Чтобы уведомления работали, сначала добавьте приложение на экран «Домой». Инструкция ниже.</p>
+ <InstallGuide/>
  <label><input type="checkbox" checked={changes} onChange={e=>{const v=e.target.checked;editEvent(()=>setChanges(v))}}/> Изменения уже опубликованных дат</label><br/>
  <label><input type="checkbox" checked={publications} onChange={e=>{const v=e.target.checked;editEvent(()=>setPublications(v))}}/> Первое появление записей на новые даты</label>
  {draft&&<p>Выбор событий изменён и ещё не сохранён.</p>}
  <p>Максимум одно сводное уведомление за одну проверку, только на сегодня и будущие даты. Старые события при подключении не отправляются. Уведомления не содержат ФИО. Проверка раз в 15 минут не гарантирует точное время доставки.</p>
  <label><input type="checkbox" checked={consent} onChange={e=>chooseConsent(e.target.checked)}/> Я согласен получать выбранные уведомления на этом устройстве</label>
  <p>Согласие сохраняется на этом устройстве и сбрасывается при отключении уведомлений.</p>
- <p role="note">Чтобы уведомления работали, сначала добавьте приложение на экран «Домой». Инструкция ниже.</p>
- <InstallGuide/>
  <button className="button full-width" disabled={busy||pending||!c?.registrationAllowed||!consent||!(changes||publications)||!!(c.device?.active&&c.device.group!==group)} onClick={enable} aria-busy={busy}>Включить уведомления</button>
  {c?.device?.active&&c.device.group!==group&&<button className="button full-width" disabled={busy||pending} onClick={switchGroup}>Переключить уведомления на группу {group}</button>}
  <button className="button full-width" disabled={busy} onClick={disable}>Отключить уведомления</button>
