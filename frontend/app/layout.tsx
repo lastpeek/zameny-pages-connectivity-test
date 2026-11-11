@@ -1,16 +1,16 @@
-import { supportedGroups } from "../src/config";
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import StageOneNotice from "./stage-one-notice";
 import {staticPath} from "../src/ui/static-path";
 import { appearanceBootstrap } from "../src/ui/appearance";
 import { earlyScheduleBootstrap } from "../src/ui/early-schedule";
-const shortDescription = `Замены в расписании колледжа: пары, кабинеты и преподаватели для групп ${supportedGroups.map(g => g.label).join(" и ")}.`;
+const shortDescription =
+  "Сайт с расписанием замен колледжа: пары, кабинеты, преподаватели и время проверки.";
 export const metadata: Metadata = {
   title: "zameny",
   description: shortDescription,
   openGraph: {
-    title: "zameny",
+    title: "zameny — расписание замен",
     description: shortDescription,
     type: "website",
   },

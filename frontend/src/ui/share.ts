@@ -2,8 +2,12 @@ import type { Entry } from "./api-state";
 import { bellRange } from "./pair-timer";
 import { readableDayMonth, weekday } from "./view";
 
-/** Public site is the last line of the message, so Telegram linkifies it. */
-export const SITE_URL = "https://nggpk-zameny.ru";
+/**
+ * Public site is the last line of the message, so Telegram linkifies it. The
+ * `?tg` marker gives Telegram a fresh preview cache entry: metadata fixes on
+ * the bare domain stay invisible while the old preview is cached.
+ */
+export const SITE_URL = "https://nggpk-zameny.ru/?tg";
 /**
  * Telegram accepts 4096 characters per message. The text keeps a reserve for
  * the site link and drops whole pairs instead of cutting a line in the middle.
