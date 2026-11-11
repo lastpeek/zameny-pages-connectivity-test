@@ -8,6 +8,7 @@ import { pairCountdown, bellRange, type BellRange, type PairStatus } from "../sr
 import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import type { Entry } from "../src/ui/api-state";
 import {staticPath} from "../src/ui/static-path";
+import {scheduleShareText, telegramShareUrl} from "../src/ui/share";
 import {readStaticState, dataAge, confirmedChangeTime} from "../src/ui/static-state";
 import { pilot, collegeDate, supportedGroups } from "../src/config";
 import {
@@ -65,7 +66,8 @@ type IconName =
   | "calendar"
   | "refresh"
   | "notice"
-  | "mark";
+  | "mark"
+  | "telegram";
 function Icon({ name }: { name: IconName }) {
   const paths: Record<IconName, React.ReactNode> = {
     bell: (
@@ -118,6 +120,11 @@ function Icon({ name }: { name: IconName }) {
     mark: (
       <>
         <path d="M4 7h13m-4-4 4 4-4 4M20 17H7m4-4-4 4 4 4" />
+      </>
+    ),
+    telegram: (
+      <>
+        <path d="M21 4.5 3.6 11.2c-.8.3-.8 1.4 0 1.7l4.2 1.5 1.5 4.4c.2.7 1.1.9 1.6.3l2.4-2.6 4.2 3.1c.6.4 1.4.1 1.6-.6L22 5.6c.2-.8-.4-1.4-1-1.1Z" />
       </>
     ),
   };
@@ -469,6 +476,10 @@ export default function Schedule() {
   }, [day]);
   const entries =
     state && day ? entriesForDate(state.entries, current.id, day) : [];
+  const shareHref =
+    entries.length > 0
+      ? telegramShareUrl(scheduleShareText(entries, current.label, day))
+      : null;
   const coverage = state?.coverage.find((c) => c.date === day);
   const banner = state ? stateBanner({...state, isStale:state.isStale || Boolean(clientError) || offline || Boolean(state.lastSuccessfulCheck && (clock||Date.now())-Date.parse(state.lastSuccessfulCheck)>1800000)}) : null;
   const timeZone = state?.timeZone || pilot.timeZone;
@@ -756,6 +767,20 @@ export default function Schedule() {
                     />
                   ))}
                 </div>
+                {shareHref && (
+                  <div className="official-source">
+                    <a
+                      className="button source-button"
+                      href={shareHref}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <Icon name="telegram" />
+                      Поделиться расписанием
+                      <span className="sr-only"> (в Telegram, в новой вкладке)</span>
+                    </a>
+                  </div>
+                )}
               </>
             ) : state && !clientError ? (
               <div className="empty-state">
