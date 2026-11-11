@@ -58,10 +58,20 @@ test("long schedules drop whole pairs and stay inside the Telegram limit", () =>
     entry({ id: `id-${i}`, subject: `Предмет ${i} с достаточно длинным названием` }),
   );
   const text = scheduleShareText(many, "311а", "2026-11-11");
-  assert.ok(text.length <= SHARE_TEXT_LIMIT + 2);
-  assert.ok(text.includes("\n\n…\n\n"));
+  assert.ok(text.length <= SHARE_TEXT_LIMIT);
+  assert.ok(text.includes("…\n\n"));
   assert.ok(text.endsWith(SITE_URL));
   assert.ok(text.startsWith("Замены · среда, 11 ноября"));
+});
+
+test("pairs are separated by a divider", () => {
+  const text = scheduleShareText(
+    [entry(), entry({ id: "b", pair: { from: 4, to: 4 }, subject: "История" })],
+    "311а",
+    "2026-11-11",
+  );
+  assert.ok(text.includes("Основы безопасности и защиты Родины"));
+  assert.ok(text.includes("\n──────────────\n4 пара"));
 });
 
 test("share url keeps the site link only at the bottom of the text", () => {

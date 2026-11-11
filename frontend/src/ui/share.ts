@@ -21,6 +21,8 @@ const pairTitle = (entry: Entry) => {
   return time ? `${from} пара · ${time.start}–${time.end}` : `${from} пара`;
 };
 
+const PAIR_DIVIDER = "──────────────";
+
 const pairBlock = (entry: Entry) => {
   const lines = [pairTitle(entry), entry.subject || "—"];
   const meta = [entry.room ? `каб. ${entry.room}` : "", entry.teacher || ""]
@@ -45,17 +47,19 @@ export function scheduleShareText(
   ].join("\n");
   if (!entries.length) return `${head}\n\n${SITE_URL}`;
   const blocks: string[] = [];
-  let size = head.length + SITE_URL.length + 4;
+  let size = head.length + SITE_URL.length + 8;
   for (const entry of entries) {
     const block = pairBlock(entry);
-    if (size + block.length + 2 > SHARE_TEXT_LIMIT) {
+    const cost = block.length + PAIR_DIVIDER.length + 4;
+    if (size + cost > SHARE_TEXT_LIMIT) {
       blocks.push("…");
       break;
     }
     blocks.push(block);
-    size += block.length + 2;
+    size += cost;
   }
-  return [head, ...blocks, SITE_URL].join("\n\n");
+  const body = blocks.join(`\n${PAIR_DIVIDER}\n`);
+  return `${head}\n\n${body}\n\n${SITE_URL}`;
 }
 
 /**
