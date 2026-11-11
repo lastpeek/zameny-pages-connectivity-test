@@ -24,7 +24,7 @@ const pairTitle = (entry: Entry) => {
 const PAIR_DIVIDER = "──────────────";
 
 const pairBlock = (entry: Entry) => {
-  const lines = [pairTitle(entry), entry.subject || "—"];
+  const lines = [`🔹 ${pairTitle(entry)}`, entry.subject || "—"];
   const meta = [entry.room ? `каб. ${entry.room}` : "", entry.teacher || ""]
     .filter(Boolean)
     .join(" · ");

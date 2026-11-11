@@ -23,7 +23,7 @@ test("share text is a readable schedule without markup or extra footer", () => {
       "Замены · среда, 11 ноября",
       "Группа 311а",
       "",
-      "3 пара · 12:45–14:15",
+      "🔹 3 пара · 12:45–14:15",
       "Основы безопасности и защиты Родины",
       "каб. 21 · Оганесян А.А.",
       "",
@@ -71,7 +71,7 @@ test("pairs are separated by a divider", () => {
     "2026-11-11",
   );
   assert.ok(text.includes("Основы безопасности и защиты Родины"));
-  assert.ok(text.includes("\n──────────────\n4 пара"));
+  assert.ok(text.includes("\n──────────────\n🔹 4 пара"));
 });
 
 test("share url keeps the site link only at the bottom of the text", () => {
