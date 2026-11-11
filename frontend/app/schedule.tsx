@@ -476,10 +476,22 @@ export default function Schedule() {
   }, [day]);
   const entries =
     state && day ? entriesForDate(state.entries, current.id, day) : [];
-  const shareHref =
-    entries.length > 0
-      ? telegramShareUrl(scheduleShareText(entries, current.label, day))
-      : null;
+  const shareText =
+    entries.length > 0 ? scheduleShareText(entries, current.label, day) : "";
+  const shareHref = shareText ? telegramShareUrl(shareText) : null;
+  /** The native share sheet keeps the site link at the bottom of the text. */
+  function shareSchedule(event: React.MouseEvent<HTMLAnchorElement>) {
+    const nav = navigator as Navigator & {
+      share?: (data: { text: string }) => Promise<void>;
+    };
+    if (!shareHref || navigator.maxTouchPoints < 1 || typeof nav.share !== "function")
+      return;
+    event.preventDefault();
+    void nav.share({ text: shareText }).catch((error: unknown) => {
+      if ((error as Error)?.name !== "AbortError")
+        window.open(shareHref, "_blank", "noopener,noreferrer");
+    });
+  }
   const coverage = state?.coverage.find((c) => c.date === day);
   const banner = state ? stateBanner({...state, isStale:state.isStale || Boolean(clientError) || offline || Boolean(state.lastSuccessfulCheck && (clock||Date.now())-Date.parse(state.lastSuccessfulCheck)>1800000)}) : null;
   const timeZone = state?.timeZone || pilot.timeZone;
@@ -774,10 +786,11 @@ export default function Schedule() {
                       href={shareHref}
                       target="_blank"
                       rel="noopener noreferrer"
+                      onClick={shareSchedule}
                     >
                       <Icon name="telegram" />
                       Поделиться расписанием
-                      <span className="sr-only"> (в Telegram, в новой вкладке)</span>
+                      <span className="sr-only"> (в Telegram)</span>
                     </a>
                   </div>
                 )}

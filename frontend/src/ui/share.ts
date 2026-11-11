@@ -55,5 +55,7 @@ export function scheduleShareText(
 }
 
 export function telegramShareUrl(text: string): string {
-  return `https://t.me/share/url?text=${encodeURIComponent(text)}`;
+  const tail = `\n\n${SITE_URL}`;
+  const body = text.endsWith(tail) ? text.slice(0, -tail.length) : text;
+  return `https://t.me/share/url?url=${encodeURIComponent(SITE_URL)}&text=${encodeURIComponent(body)}`;
 }
