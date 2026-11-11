@@ -5,12 +5,12 @@ import {staticPath} from "../src/ui/static-path";
 import { appearanceBootstrap } from "../src/ui/appearance";
 import { earlyScheduleBootstrap } from "../src/ui/early-schedule";
 const shortDescription =
-  "Сайт с расписанием замен колледжа: пары, кабинеты, преподаватели и время проверки.";
+  "Сайт с расписанием замен колледжа: пары, кабинеты и преподаватели.";
 export const metadata: Metadata = {
   title: "zameny",
   description: shortDescription,
   openGraph: {
-    title: "zameny — расписание замен",
+    title: "zameny - расписание замен",
     description: shortDescription,
     type: "website",
   },

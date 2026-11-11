@@ -7,7 +7,7 @@ import { readableDayMonth, weekday } from "./view";
  * `?tg` marker gives Telegram a fresh preview cache entry: metadata fixes on
  * the bare domain stay invisible while the old preview is cached.
  */
-export const SITE_URL = "https://nggpk-zameny.ru/?tg";
+export const SITE_URL = "https://nggpk-zameny.ru/?tg2";
 /**
  * Telegram accepts 4096 characters per message. The text keeps a reserve for
  * the site link and drops whole pairs instead of cutting a line in the middle.
