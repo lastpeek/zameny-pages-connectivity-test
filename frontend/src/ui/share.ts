@@ -2,12 +2,11 @@ import type { Entry } from "./api-state";
 import { bellRange } from "./pair-timer";
 import { readableDayMonth, weekday } from "./view";
 
-/** Public site appended by Telegram itself, so the link stays clickable. */
+/** Public site is the last line of the message, so Telegram linkifies it. */
 export const SITE_URL = "https://nggpk-zameny.ru";
 /**
- * Telegram accepts 4096 characters per message. The site URL is appended by
- * Telegram, so the text keeps a reserve and drops whole pairs instead of
- * cutting a line in the middle.
+ * Telegram accepts 4096 characters per message. The text keeps a reserve for
+ * the site link and drops whole pairs instead of cutting a line in the middle.
  */
 export const SHARE_TEXT_LIMIT = 3800;
 
@@ -40,9 +39,9 @@ export function scheduleShareText(
     `Замены · ${weekday(day)}, ${readableDayMonth(day)}`,
     `Группа ${groupLabel}`,
   ].join("\n");
-  if (!entries.length) return head;
+  if (!entries.length) return `${head}\n\n${SITE_URL}`;
   const blocks: string[] = [];
-  let size = head.length;
+  let size = head.length + SITE_URL.length + 4;
   for (const entry of entries) {
     const block = pairBlock(entry);
     if (size + block.length + 2 > SHARE_TEXT_LIMIT) {
@@ -52,9 +51,9 @@ export function scheduleShareText(
     blocks.push(block);
     size += block.length + 2;
   }
-  return [head, ...blocks].join("\n\n");
+  return [head, ...blocks, SITE_URL].join("\n\n");
 }
 
 export function telegramShareUrl(text: string): string {
-  return `https://t.me/share/url?url=${encodeURIComponent(SITE_URL)}&text=${encodeURIComponent(text)}`;
+  return `https://t.me/share/url?text=${encodeURIComponent(text)}`;
 }

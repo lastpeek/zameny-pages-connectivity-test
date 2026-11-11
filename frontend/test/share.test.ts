@@ -26,10 +26,12 @@ test("share text is a readable schedule without markup or extra footer", () => {
       "3 пара · 12:45–14:15",
       "Основы безопасности и защиты Родины",
       "каб. 21 · Оганесян А.А.",
+      "",
+      SITE_URL,
     ].join("\n"),
   );
   assert.ok(!text.includes("Владивосток"));
-  assert.ok(!text.includes(SITE_URL));
+  assert.ok(text.endsWith(`\n\n${SITE_URL}`));
 });
 
 test("missing room, teacher or pair stays literal instead of invented", () => {
@@ -48,7 +50,7 @@ test("missing room, teacher or pair stays literal instead of invented", () => {
 
 test("empty day still shares the date and group, never an invented pair", () => {
   const text = scheduleShareText([], "311а", "2026-11-11");
-  assert.equal(text, "Замены · среда, 11 ноября\nГруппа 311а");
+  assert.equal(text, `Замены · среда, 11 ноября\nГруппа 311а\n\n${SITE_URL}`);
 });
 
 test("long schedules drop whole pairs and stay inside the Telegram limit", () => {
@@ -57,14 +59,17 @@ test("long schedules drop whole pairs and stay inside the Telegram limit", () =>
   );
   const text = scheduleShareText(many, "311а", "2026-11-11");
   assert.ok(text.length <= SHARE_TEXT_LIMIT + 2);
-  assert.ok(text.endsWith("…"));
+  assert.ok(text.includes("\n\n…\n\n"));
+  assert.ok(text.endsWith(SITE_URL));
   assert.ok(text.startsWith("Замены · среда, 11 ноября"));
 });
 
-test("share url carries the text and the clickable site link", () => {
-  const url = telegramShareUrl("Замены · среда, 11 ноября");
+test("share url carries the text without a link pushed to the top", () => {
+  const text = scheduleShareText([entry()], "311а", "2026-11-11");
+  const url = telegramShareUrl(text);
   assert.ok(url.startsWith("https://t.me/share/url?"));
   const query = new URL(url).searchParams;
-  assert.equal(query.get("url"), SITE_URL);
-  assert.equal(query.get("text"), "Замены · среда, 11 ноября");
+  assert.equal(query.get("url"), null);
+  assert.equal(query.get("text"), text);
+  assert.ok((query.get("text") ?? "").endsWith(SITE_URL));
 });

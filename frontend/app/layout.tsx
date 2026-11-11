@@ -1,13 +1,19 @@
-import { pilot } from "../src/config";
+import { supportedGroups } from "../src/config";
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import StageOneNotice from "./stage-one-notice";
 import {staticPath} from "../src/ui/static-path";
 import { appearanceBootstrap } from "../src/ui/appearance";
 import { earlyScheduleBootstrap } from "../src/ui/early-schedule";
+const shortDescription = `Замены в расписании колледжа: пары, кабинеты и преподаватели для групп ${supportedGroups.map(g => g.label).join(" и ")}.`;
 export const metadata: Metadata = {
   title: "zameny",
-  description: `zameny: опубликованные данные колледжа для группы ${pilot.group}, ссылка на первоисточник и время проверки.`,
+  description: shortDescription,
+  openGraph: {
+    title: "zameny",
+    description: shortDescription,
+    type: "website",
+  },
   manifest: staticPath("/manifest.webmanifest"),
   appleWebApp: { capable: true, title: "zameny", statusBarStyle: "black" },
   icons: {
