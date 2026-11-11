@@ -64,12 +64,12 @@ test("long schedules drop whole pairs and stay inside the Telegram limit", () =>
   assert.ok(text.startsWith("Замены · среда, 11 ноября"));
 });
 
-test("share url keeps the link at the bottom of the message text", () => {
+test("share url keeps the site link only at the bottom of the text", () => {
   const text = scheduleShareText([entry()], "311а", "2026-11-11");
   const url = telegramShareUrl(text);
   assert.ok(url.startsWith("https://t.me/share/url?"));
   const query = new URL(url).searchParams;
-  assert.equal(query.get("url"), SITE_URL);
-  assert.ok(!(query.get("text") ?? "").includes(SITE_URL));
-  assert.ok((query.get("text") ?? "").startsWith("Замены · среда, 11 ноября"));
+  assert.notEqual(query.get("url"), SITE_URL);
+  assert.equal(query.get("text"), text);
+  assert.ok((query.get("text") ?? "").endsWith(SITE_URL));
 });

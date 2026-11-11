@@ -54,8 +54,13 @@ export function scheduleShareText(
   return [head, ...blocks, SITE_URL].join("\n\n");
 }
 
+/**
+ * t.me/share/url rejects an empty `url` (redirects to telegram.org), and any
+ * real URL is printed above the text. An invisible placeholder keeps the
+ * dialog working while the site link stays the last line of the message.
+ */
+const URL_PLACEHOLDER = "\u200B";
+
 export function telegramShareUrl(text: string): string {
-  const tail = `\n\n${SITE_URL}`;
-  const body = text.endsWith(tail) ? text.slice(0, -tail.length) : text;
-  return `https://t.me/share/url?url=${encodeURIComponent(SITE_URL)}&text=${encodeURIComponent(body)}`;
+  return `https://t.me/share/url?url=${encodeURIComponent(URL_PLACEHOLDER)}&text=${encodeURIComponent(text)}`;
 }
